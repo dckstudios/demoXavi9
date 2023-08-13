@@ -2,22 +2,20 @@ import streamlit as st
 import requests
 import json
 import os
+import re
 from dotenv import load_dotenv
 from PIL import Image
-from io import BytesIO
-import jinaai
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
 YOUR_GENERATED_SECRET = os.getenv('BESTBANNER_SECRET')
 
-def generate_banner(titulo, texto, estilo="default"):
+def generate_banner(titulo, texto):
     # Crear payload de datos
     data = {
         "data": [
-            {"text": f"{titulo} {texto}"},
-            {"style": estilo}
+            {"text": f"{titulo} {texto}"}
         ]
     }
 
@@ -35,22 +33,25 @@ def generate_banner(titulo, texto, estilo="default"):
 
     return response
 
+def save_image_locally(image_url, filename):
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        with open(f"./data/{filename}", "wb") as f:
+            f.write(response.content)
+
+        # Guardar una copia en la carpeta local "data"
+        with open(f"./data/generated_{filename}", "wb") as f:
+            f.write(response.content)
+
+def extract_number_from_filename(filename):
+    match = re.search(r'_(\d+)', filename)
+    if match:
+        return +int(match.group(1))  # Agregar el signo negativo para ordenar de mayor a menor
+    else:
+        return 0
+
 def main():
     st.title("Generador de Banners")
-
-    # Descripciones de los estilos
-    estilo_descripciones = {
-        "default": "El estilo predeterminado no aplica un estilo específico a la pancarta.",
-        "photographic": "El estilo 'fotográfico' generará pancartas que parecen fotografías.",
-        "minimalist": "El estilo 'minimalista' generará pancartas con composiciones simples.",
-        "flat": "El estilo 'plano' generará pancartas modernas que parecerán ilustraciones modernas."
-    }
-
-    # Obtener el estilo de la pancarta desde el usuario
-    estilo = st.radio("Estilo de la pancarta:", ("default", "photographic", "minimalist", "flat"))
-
-    # Mostrar descripción del estilo seleccionado
-    st.write(estilo_descripciones[estilo])
 
     # Obtener el título y el texto del artículo desde el usuario
     titulo = st.text_input("Título del artículo:")
@@ -58,7 +59,7 @@ def main():
 
     # Agregar un botón para ejecutar la solicitud POST
     if st.button("Ejecutar"):
-        response = generate_banner(titulo, texto, estilo=estilo)
+        response = generate_banner(titulo, texto)
 
         # Mostrar resultados
         st.subheader("Respuesta del Servidor:")
@@ -67,29 +68,31 @@ def main():
         st.write("Texto de respuesta:")
         st.code(response.text)
 
-    # Mostrar imágenes generadas anteriores
-    st.subheader("Imágenes generadas anteriores:")
-    previous_images = st.empty()
+        # Imprimir la respuesta completa en la consola
+        print(response.json())
 
-# Obtener imágenes generadas anteriores desde el API de JinaAI
-    previous_images_response = jinaai.get_previous_images()
+        # Guardar una copia de la imagen generada en la carpeta local "data"
+        image_url = response.json()["result"][0]["banners"][0]["url"]
+        save_image_locally(image_url)
 
-    if previous_images_response.status_code == 200 and previous_images_response.text:
-        previous_images_data = previous_images_response.json().get("data", [])
+    st.title("Galería de imágenes generadas")
 
-        if previous_images_data:
-            for i, image_data in enumerate(previous_images_data[::-1]):
-                image_url = image_data.get("url")
+    image_files = os.listdir("./data")
+    image_files = sorted(image_files, key=extract_number_from_filename, reverse=True)
+    num_columns = 4
+    image_groups = [image_files[i:i+num_columns] for i in range(0, len(image_files), num_columns)]
 
-                if image_url:
-                    if is_url(image_url):
-                        image_response = requests.get(image_url)
-                        img = Image.open(BytesIO(image_response.content))
-                        st.image(img, caption=f"Imagen {i+1}", label=f"Imagen {i+1}")
-                    else:
-                        st.write(f"URL inválida: {image_url}")
-    else:
-        st.write("Error al obtener las imágenes generadas anteriores.")
+    for group in image_groups:
+        columns = st.columns(4)
+        for i, image_file in enumerate(group):
+            if image_file.endswith(".png"):
+                img_path = os.path.join("./data", image_file)
+                image = Image.open(img_path)
+                resized_image = image.resize((300, 300))
+
+                # Mostrar la imagen en la columna correspondiente
+                with columns[i]:
+                    st.image(resized_image, caption=image_file, width=300, use_column_width=True, clamp=True)
 
 if __name__ == "__main__":
     main()

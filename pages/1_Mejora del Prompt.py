@@ -19,13 +19,13 @@ jinaai = JinaAI(
 st.title("Prompt Optimization")
 
 # Input
-prompt_input = st.text_area("Enter the prompt:", "Eres un chatbot asistente para el equipo de Comercial , deberá ser capaz de dar explicaciones sobre las actividades que se realizan en los sectores industriales.", height=200)
+prompt_input = st.text_area("Enter the prompt:", "Eres un chatbot asistente para el equipo de Comercial , deberá ser capaz de dar explicaciones sobre las actividades que se realizan en los sectores industriales.", height=200, key="prompt_input", label_visibility='collapsed')
 
 # Sidebar
 # Sidebar
 st.sidebar.title("Opciones")
 
-st.sidebar.markdown("**Modelo objetivo:**")
+st.sidebar.markdown("**Modelo objetivo:** El modelo de lenguaje al que se dirigirá la optimización.")
 st.sidebar.markdown("El modelo de lenguaje al que se dirigirá la optimización.")
 
 target_model = st.sidebar.selectbox("", ['chatgpt', 'gpt-4', 'stablelm-tuned-alpha-7b', 'claude', 'cogenerate', 'text-davinci-003', 'dalle', 'sd', 'midjourney', 'kandinsky', 'lexica'])
@@ -70,34 +70,36 @@ st.sidebar.markdown("El tiempo máximo de espera en milisegundos para obtener un
 
 timeout = st.sidebar.number_input("", value=20000, key="timeout")
 
-# ...
 
-
-
-# Optimization
-timeout = st.sidebar.number_input("", value=20000)
 if st.button("Optimize"):
-    # Optimization
-    prompts = jinaai.optimize(
-        prompt_input,
-        options={
-            'targetModel': target_model,
-            'features': features,
-            'iterations': iterations,
-            'previewSettings': {
-                'temperature': temperature,
-                'topP': topP,
-                'topK': topK,
-                'frequencyPenalty': frequencyPenalty,
-                'presencePenalty': presencePenalty
-            },
-            'timeout': timeout,
-            'target_language': "es"
-        }
-    )
+    try:
+        # Optimization
+        prompts = jinaai.optimize(
+            prompt_input,
+            options={
+                'targetModel': target_model,
+                'features': features,
+                'iterations': iterations,
+                'previewSettings': {
+                    'temperature': temperature,
+                    'topP': topP,
+                    'topK': topK,
+                    'frequencyPenalty': frequencyPenalty,
+                    'presencePenalty': presencePenalty
+                },
+                'timeout': timeout,
+                'target_language': "es"
+            }
+        )
 
-    # Output
-    optimized_prompt = prompts['results'][0]['output']
+        # Output
+        optimized_prompt = prompts['results'][0]['output']
 
-    st.write("Optimized prompt:")
-    st.write(optimized_prompt)
+        st.write("Optimized prompt:")
+        st.write(optimized_prompt)
+    except Exception as e:
+        if 'InsufficientCreditsError' in str(e):
+            st.error("No tienes suficiente saldo de crédito. Por favor, compra más créditos en Tribu Corp.")
+        else:
+            st.error("Ocurrió un error durante la optimización. Por favor, inténtalo de nuevo más tarde.")
+
