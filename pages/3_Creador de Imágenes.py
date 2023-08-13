@@ -10,7 +10,7 @@ from PIL import Image
 load_dotenv()
 
 YOUR_GENERATED_SECRET = os.getenv('BESTBANNER_SECRET')
-
+MAIN_DIR = "./data/"
 def generate_banner(titulo, texto):
     # Crear payload de datos
     data = {
@@ -33,6 +33,16 @@ def generate_banner(titulo, texto):
 
     return response
 
+def download_image(url,filename):
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        with open(filename, "wb") as f:
+            f.write(response.content)
+        print(f"La imagen ha sido descargada y guardada como {filename}")
+    else:
+        print("Error al descargar la imagen")
 def save_image_locally(image_url, filename):
     response = requests.get(image_url)
     if response.status_code == 200:
@@ -71,9 +81,13 @@ def main():
         # Imprimir la respuesta completa en la consola
         print(response.json())
 
-        # Guardar una copia de la imagen generada en la carpeta local "data"
-        image_url = response.json()["result"][0]["banners"][0]["url"]
-        save_image_locally(image_url)
+        for banner in response.json()["result"][0]["banners"] :
+            # Guardar una copia de la imagen generada en la carpeta local "data"
+            #image_url = response.json()["result"][0]["banners"][0]["url"]
+            image_url = banner["url"]
+            print(image_url)
+            download_image(image_url,str(MAIN_DIR) + str(os.path.basename(image_url)))
+        #save_image_locally(image_url)
 
     st.title("Galería de imágenes generadas")
 
