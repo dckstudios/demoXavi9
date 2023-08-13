@@ -19,7 +19,7 @@ jinaai = JinaAI(
 st.title("Prompt Optimization")
 
 # Input
-prompt_input = st.text_input("Enter the prompt:", "Write a Python function called 'hola_mundo' that prints the message 'Hello World' to the console. Make sure the function is written in Spanish.")
+prompt_input = st.text_area("Enter the prompt:", "Eres un chatbot asistente para el equipo de Comercial , deberá ser capaz de dar explicaciones sobre las actividades que se realizan en los sectores industriales.", height=200)
 
 # Sidebar
 # Sidebar

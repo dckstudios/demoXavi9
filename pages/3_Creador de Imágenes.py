@@ -5,27 +5,19 @@ import os
 from dotenv import load_dotenv
 from PIL import Image
 from io import BytesIO
-from jinaai import JinaAI
+import jinaai
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-jinaai = JinaAI(
-    secrets = {
-        'promptperfect-secret': os.getenv('PROMPTPERFECT_SECRET'),
-        'scenex-secret': os.getenv('SCENEX_SECRET'),
-        'rationale-secret': os.getenv('RATIONALE_SECRET'),
-        'jinachat-secret': os.getenv('JINACHAT_SECRET'),
-        'bestbanner-secret': os.getenv('BESTBANNER_SECRET'),
-    }
-)
+YOUR_GENERATED_SECRET = os.getenv('BESTBANNER_SECRET')
 
-
-def generate_banner(titulo, texto):
+def generate_banner(titulo, texto, estilo="default"):
     # Crear payload de datos
     data = {
         "data": [
-            {"text": f"{titulo} {texto}"}
+            {"text": f"{titulo} {texto}"},
+            {"style": estilo}
         ]
     }
 
@@ -46,13 +38,27 @@ def generate_banner(titulo, texto):
 def main():
     st.title("Generador de Banners")
 
+    # Descripciones de los estilos
+    estilo_descripciones = {
+        "default": "El estilo predeterminado no aplica un estilo específico a la pancarta.",
+        "photographic": "El estilo 'fotográfico' generará pancartas que parecen fotografías.",
+        "minimalist": "El estilo 'minimalista' generará pancartas con composiciones simples.",
+        "flat": "El estilo 'plano' generará pancartas modernas que parecerán ilustraciones modernas."
+    }
+
+    # Obtener el estilo de la pancarta desde el usuario
+    estilo = st.radio("Estilo de la pancarta:", ("default", "photographic", "minimalist", "flat"))
+
+    # Mostrar descripción del estilo seleccionado
+    st.write(estilo_descripciones[estilo])
+
     # Obtener el título y el texto del artículo desde el usuario
     titulo = st.text_input("Título del artículo:")
     texto = st.text_area("Texto del artículo:")
 
     # Agregar un botón para ejecutar la solicitud POST
     if st.button("Ejecutar"):
-        response = generate_banner(titulo, texto)
+        response = generate_banner(titulo, texto, estilo=estilo)
 
         # Mostrar resultados
         st.subheader("Respuesta del Servidor:")
@@ -65,17 +71,23 @@ def main():
     st.subheader("Imágenes generadas anteriores:")
     previous_images = st.empty()
 
-    # Obtener imágenes generadas anteriores
-    previous_images_response = requests.get("https://api.bestbanner.jina.ai/v1/images")
+# Obtener imágenes generadas anteriores desde el API de JinaAI
+    previous_images_response = jinaai.get_previous_images()
+
     if previous_images_response.status_code == 200 and previous_images_response.text:
-        previous_images_data = json.loads(previous_images_response.text).get("data", [])
+        previous_images_data = previous_images_response.json().get("data", [])
+
         if previous_images_data:
             for i, image_data in enumerate(previous_images_data[::-1]):
                 image_url = image_data.get("url")
+
                 if image_url:
-                    image_response = requests.get(image_url)
-                    img = Image.open(BytesIO(image_response.content))
-                    previous_images.image(img, caption=f"Imagen {i+1}")
+                    if is_url(image_url):
+                        image_response = requests.get(image_url)
+                        img = Image.open(BytesIO(image_response.content))
+                        st.image(img, caption=f"Imagen {i+1}", label=f"Imagen {i+1}")
+                    else:
+                        st.write(f"URL inválida: {image_url}")
     else:
         st.write("Error al obtener las imágenes generadas anteriores.")
 
