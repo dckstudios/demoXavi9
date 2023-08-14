@@ -1,4 +1,4 @@
-langchain==0.0.251
+langchain==0.0.239
 langchain-experimental==0.0.8
 langsmith==0.0.18
 markdown-it-py==2.2.0
