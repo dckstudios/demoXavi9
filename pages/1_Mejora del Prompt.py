@@ -16,10 +16,10 @@ jinaai = JinaAI(
     }
 )
 
-st.title("Prompt Optimization")
+st.title("Optimizador de Prompts")
 
 # Input
-prompt_input = st.text_area("Enter the prompt:", "Eres un chatbot asistente para el equipo de Comercial , deberá ser capaz de dar explicaciones sobre las actividades que se realizan en los sectores industriales.", height=200, key="prompt_input", label_visibility='collapsed')
+prompt_input = st.text_area("Introduce tu  prompt:", "Eres un chatbot asistente para el equipo de Comercial , deberá ser capaz de dar explicaciones sobre las actividades que se realizan en los sectores industriales.", height=200, key="prompt_input", label_visibility='collapsed')
 
 # Sidebar
 # Sidebar
