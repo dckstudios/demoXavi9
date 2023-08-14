@@ -1,5 +1,4 @@
-langchain==0.0.233
-langchain-experimental==0.0.8
+langchain==0.0.239
 langsmith==0.0.18
 markdown-it-py==2.2.0
 openai==0.27.7
@@ -12,4 +11,3 @@ tiktoken==0.4.0
 streamlit-card
 jinaai
 load_dotenv
-codeinterpreterapi
