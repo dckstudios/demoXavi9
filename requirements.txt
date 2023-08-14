@@ -12,3 +12,4 @@ tiktoken==0.4.0
 streamlit-card
 jinaai
 load_dotenv
+codeinterpreterapi
