@@ -19,7 +19,7 @@ from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 
 st.set_page_config(
-    page_title="Boss APP",
+    page_title="Honne Services APP",
     page_icon="👋",
 )
 
@@ -46,9 +46,8 @@ store = PGVector(
 
 retriever = store.as_retriever()
 
-st.title("👨‍💻 Test - BOSS")
+st.title("👨‍💻 Asistente Empresarial")
 st.write (":warning: esto es una versión preliminar a falta de refinamientos.")
-
 
 
 PROMPT = pr.prompts_default()
@@ -85,6 +84,3 @@ if question and  boton:
                 "Detalle"      )
             st.markdown(
                 ValueError      )
-
-      
-
