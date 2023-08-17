@@ -48,7 +48,7 @@ store = PGVector(
 
 retriever = store.as_retriever()
 
-st.title("👨‍💻 Asistente Empresarial")
+st.title("👨‍💻 Honne atención al cliente")
 st.write (":warning: esto es una versión preliminar a falta de refinamientos.")
 
 

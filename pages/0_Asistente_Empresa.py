@@ -19,7 +19,7 @@ from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 
 st.set_page_config(
-    page_title="Honne Services APP",
+    page_title="Boss Services APP",
     page_icon="👋",
 
 )
