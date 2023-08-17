@@ -155,3 +155,4 @@ cython_debug/
 .DS_Store
 xavi9codex/.DS_Store
 .DS_Store
+*.toml
