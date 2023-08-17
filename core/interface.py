@@ -16,10 +16,22 @@ def decode_response(response: str) -> dict:
         dict: dictionary with response data
     """
 
-    print(response)
     return json.loads(response)
    
-
+def generate_literal(sources):
+    base_url = "https://storage.googleapis.com/xavinine"
+    source_list = sources.strip().split('\n')
+    
+    links = []
+    for source in source_list:
+        _, filename = source.rsplit('/', 1)
+        link = f' [<a href="{base_url}{source.replace("- .","")}">{filename}</a>] '
+        links.append(link)
+    
+    links_literal = ', '.join(links)
+    
+    literal = f'Fuentes: {links_literal}'
+    return literal
 
 def write_response(response_dict: dict):
     """
@@ -35,6 +47,7 @@ def write_response(response_dict: dict):
     # Check if the response is an answer.
     if "answer" in response_dict:
         st.write(response_dict["answer"],unsafe_allow_html=True)
+        st.write(generate_literal(response_dict["sources"]),unsafe_allow_html=True)
       
 
     # Check if the response is a bar chart.
