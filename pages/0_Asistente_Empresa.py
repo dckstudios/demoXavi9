@@ -21,7 +21,9 @@ from langchain.chat_models import ChatOpenAI
 st.set_page_config(
     page_title="Honne Services APP",
     page_icon="👋",
+
 )
+
 
 
 #connection string "postgresql+psycopg2://harrisonchase@localhost:5432/test3"
